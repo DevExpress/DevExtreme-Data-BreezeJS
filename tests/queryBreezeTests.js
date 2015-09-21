@@ -31,17 +31,25 @@ $(function () {
         return query(manager, resourceNameOrQuery, queryOptions);
     }
 
+    QUnit.module("Global", {
+        beforeEach: function () {
+            this.server = sinon.fakeServer.create({
+                respondImmediately: true
+            });
+        },
+        afterEach: function () {
+            this.server.restore();
+        }
+    });
+
     QUnit.test("exists", function (assert) {
         assert.ok("breeze" in DevExpress.data.queryImpl);
     });
 
     QUnit.test("enumerate", function (assert) {
         var done = assert.async();
-        var server = sinon.fakeServer.create({
-            respondImmediately: true
-        });
 
-        server.respondWith([
+        this.server.respondWith([
             HTTP_STATUS_OK,
             ODATA_V2_RESPONSE_HEADERS,
             JSON.stringify({
@@ -65,16 +73,13 @@ $(function () {
                     { "id": 2 }
                 ]);
                 assert.ok($.isEmptyObject(extra));
-            }).always($.proxy(server.restore, server), done);
+            }).always(done);
     });
 
     QUnit.test("sortBy / thenBy", function (assert) {
         var done = assert.async();
-        var server = sinon.fakeServer.create({
-            respondImmediately: true
-        });
 
-        server.respondWith(function (request) {
+        this.server.respondWith(function (request) {
             assert.ok(/\$orderby=a desc,b,c\/d$/.test(decodeURIComponent(request.url)));
         });
 
@@ -83,7 +88,7 @@ $(function () {
             .thenBy("b")
             .thenBy("c.d")
             .enumerate()
-            .always($.proxy(server.restore, server), done);
+            .always(done);
     });
 
     QUnit.test("thenBy cannot be called before sortBy", function (assert) {
@@ -96,17 +101,6 @@ $(function () {
         assert.throws(function () {
             createBreezeQuery().groupBy();
         });
-    });
-
-    QUnit.module("select & expand", {
-        beforeEach: function () {
-            this.server = sinon.fakeServer.create({
-                respondImmediately: true
-            });
-        },
-        afterEach: function () {
-            this.server.restore();
-        }
     });
 
     QUnit.test("select", function (assert) {
