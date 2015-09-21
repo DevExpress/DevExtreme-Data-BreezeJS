@@ -19,7 +19,7 @@ breeze.config.initializeAdapterInstances({
 });
 
 var DEFAULT_SERVICE_NAME = "...",
-    DEFAULT_RESOURCE_NAME = "Entity";
+    DEFAULT_RESOURCE_NAME = "Entities";
 
 function createEntityManager() {
     return new EntityManager({
@@ -33,5 +33,12 @@ function createEntityManager() {
 function createNoPasaran(assert) {
     return function () {
         assert.ok(false, "Shouldn't reach this point")
+    };
+}
+
+function toBreezeInt32(value) {
+    return {
+        value: value,
+        dataType: DataType.Int32
     };
 }

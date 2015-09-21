@@ -189,10 +189,7 @@ QUnit.test("simple filter", function (assert) {
 
 QUnit.test("complex filter", function (assert) {
     var done = assert.async(),
-        one = {
-            value: 1,
-            dataType: DataType.Int32
-        };
+        one = toBreezeInt32(1);
 
     this.server.respondWith(function (request) {
         assert.ok(/\$filter=\(\(a ne 1\) or \(\(b eq 1\) and \(c gt 1\)\) or \(c lt 1\) or \(c eq 1\)\) and \(d eq 1\)$/.test(decodeURIComponent(request.url)));

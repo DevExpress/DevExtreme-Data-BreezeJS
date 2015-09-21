@@ -149,3 +149,72 @@ QUnit.test("load (with requireTotalCount)", function (assert) {
         })
         .always(done);
 });
+
+QUnit.test("byKey (simple key)", 1, function (assert) {
+    var done = assert.async();
+
+    this.server.respondWith(function (request) {
+        // TODO: Why so? Why not 'DEFAULT_RESOURCE_NAME/1'?
+        // NOTE: What would happen if no entity satisfies the criteria?
+        // var regExp = new RegExp(DEFAULT_RESOURCE_NAME + "\\/1$");
+        // assert.ok(regExp.test(decodeURIComponent(request.url)));
+
+        assert.ok(/\$filter=ID eq 1$/.test(decodeURIComponent(request.url)));
+    });
+
+    createBreezeStore({ key: "ID" })
+        .byKey(toBreezeInt32(1))
+        .always(done);
+});
+
+QUnit.test("byKey (complex key)", 1, function (assert) {
+    var done = assert.async();
+
+    this.server.respondWith(function (request) {
+        assert.ok(/\$filter=\(ID1 eq 1\) and \(ID2 eq 2\)$/.test(decodeURIComponent(request.url)));
+    });
+
+    createBreezeStore({ key: ["ID1", "ID2"] })
+        .byKey({
+            "ID1": toBreezeInt32(1),
+            "ID2": toBreezeInt32(2),
+            "it should be ignored": "it will be ignored"
+        })
+        .always(done);
+});
+
+QUnit.test("key can be obtained from metadata", function (assert) {
+    var manager = new EntityManager();
+
+    manager.metadataStore.addEntityType({
+        shortName: "EntityWithSimpleKey",
+        defaultResourceName: "EntityWithSimpleKey",
+        dataProperties: {
+            id: { isPartOfKey: true }
+        }
+    });
+
+    manager.metadataStore.addEntityType({
+        shortName: "EntityWithComplexKey",
+        defaultResourceName: "EntityWithComplexKey",
+        dataProperties: {
+            id1: { isPartOfKey: true },
+            id2: { isPartOfKey: true }
+        }
+    });
+
+    var storeForEntityWithSimpleKey = new BreezeStore(manager, "EntityWithSimpleKey"),
+        storeForEntityWithComplexKey = new BreezeStore(manager, "EntityWithComplexKey");
+
+    var simpleKey = storeForEntityWithSimpleKey.key(),
+        complexKey = storeForEntityWithComplexKey.key();
+
+    assert.equal(simpleKey, "id");
+    assert.equal(storeForEntityWithSimpleKey.keyOf({ id: "abc" }), "abc");
+
+    assert.ok($.isArray(complexKey));
+    assert.ok($.inArray("id1", complexKey) > -1);
+    assert.ok($.inArray("id2", complexKey) > -1);
+
+    assert.deepEqual(storeForEntityWithComplexKey.keyOf({ id1: "abc", id2: "xyz" }), { id1: "abc", id2: "xyz" });
+});
