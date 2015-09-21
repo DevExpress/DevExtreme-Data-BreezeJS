@@ -8,6 +8,7 @@ $(function () {
         EntityManager = breeze.EntityManager;
 
     var HTTP_STATUS_OK = 200;
+    var HTTP_STATUS_ERROR = 500;
     var ODATA_V2_RESPONSE_HEADERS = {
         "DataServiceVersion": 2.0,
         "Content-Type": "application/json;charset=utf-8"
@@ -327,5 +328,53 @@ $(function () {
             .done(function (r) {
                 assert.equal(r, 42);
             }).always(done);
+    });
+
+    QUnit.test("error handling for count", function (assert) {
+        var done = assert.async();
+
+        this.server.respondWith([
+            HTTP_STATUS_ERROR,
+            ODATA_V2_RESPONSE_HEADERS,
+            JSON.stringify({
+                error: {
+                    "message": "Unknown error"
+                }
+            })
+        ]);
+
+        createBreezeQuery()
+            .count()
+            .fail(function (error) {
+                assert.ok(error instanceof Error);
+            })
+            .done(function () {
+                assert.ok(false, "Shouldn't reach this point");
+            })
+            .always(done);
+    });
+
+    QUnit.test("error handling for enumerate", function (assert) {
+        var done = assert.async();
+
+        this.server.respondWith([
+            HTTP_STATUS_ERROR,
+            ODATA_V2_RESPONSE_HEADERS,
+            JSON.stringify({
+                error: {
+                    "message": "Unknown error"
+                }
+            })
+        ]);
+
+        createBreezeQuery()
+            .enumerate()
+            .fail(function (error) {
+                assert.ok(error instanceof Error);
+            })
+            .done(function () {
+                assert.ok(false, "Shouldn't reach this point");
+            })
+            .always(done);
     });
 });
