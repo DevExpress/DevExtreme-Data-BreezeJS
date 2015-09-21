@@ -154,4 +154,17 @@ $(function () {
             .enumerate()
             .always(done);
     });
+
+    QUnit.test("slice", function (assert) {
+        var done = assert.async();
+
+        this.server.respondWith(function (request) {
+            assert.ok(/\$skip=1&\$top=2$/.test(decodeURIComponent(request.url)));
+        });
+
+        createBreezeQuery()
+            .slice(1, 2)
+            .enumerate()
+            .always(done);
+    });
 });
