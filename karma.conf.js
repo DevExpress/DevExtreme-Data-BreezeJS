@@ -19,7 +19,7 @@ module.exports = function (config) {
 
             "src/dx.data.breeze.js",
 
-            "tests/queryBreezeTests.js"
+            "tests/all-tests.js"
         ],
         plugins: [
             "karma-qunit",

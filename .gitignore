@@ -4,3 +4,4 @@ bower_components
 shippable
 typings
 jsconfig.json
+tests/all-tests.js
