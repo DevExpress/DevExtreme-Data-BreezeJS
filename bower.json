@@ -2,6 +2,7 @@
     "name": "devextreme-data-breezejs",
     "version": "15.1.6",
     "dependencies": {
+        "q": "1.0.1",
         "datajs": "latest",
         "jquery": "latest",
         "globalize": "latest",
@@ -9,12 +10,19 @@
         "breeze-client": "latest"
     },
     "devDependencies": {
-        "qunit": "latest"
+        "qunit": "latest",
+        "sinon": "http://sinonjs.org/releases/sinon-1.16.1.js"
+    },
+    "resolutions": {
+        "jquery": "2.1.4"
     },
     "install": {
         "path": "lib",
 
         "sources": {
+            "sinon": [
+                "bower_components/sinon/index.js"
+            ],
             "datajs": [
                 "bower_components/datajs/datajs*.min.js"
             ],
@@ -23,7 +31,6 @@
             ],
             "breeze-client": [
                 "bower_components/breeze-client/build/breeze.min.js",
-                "bower_components/breeze-client/build/adapters/breeze.ajax.jQuery.js",
                 "bower_components/breeze-client/build/adapters/breeze.dataService.odata.js"
             ]
         }

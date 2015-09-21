@@ -7,14 +7,15 @@ module.exports = function (config) {
         files: [
             "lib/qunit/qunit.css",
 
+            "lib/q/q.js",
             "lib/jquery/jquery.js",
             "lib/globalize/globalize.js",
             "lib/devextreme/dx.all.js",
             "lib/datajs/datajs-*.min.js",
 
             "lib/breeze-client/breeze.min.js",
-            "lib/breeze-client/breeze.ajax.jQuery.js",
             "lib/breeze-client/breeze.dataService.odata.js",
+            "lib/sinon/index.js",
 
             "src/dx.data.breeze.js",
 
