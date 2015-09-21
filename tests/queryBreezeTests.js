@@ -50,18 +50,18 @@ $(function () {
     QUnit.test("enumerate", function (assert) {
         var done = assert.async();
 
-        this.server.respondWith([
-            HTTP_STATUS_OK,
-            ODATA_V2_RESPONSE_HEADERS,
-            JSON.stringify({
+        this.server.respondWith(function (request) {
+            assert.ok(!/\$inlineCount/.test(decodeURIComponent(request.url)));
+
+            request.respond(HTTP_STATUS_OK, ODATA_V2_RESPONSE_HEADERS, JSON.stringify({
                 d: {
                     results: [
                         { id: 1 },
                         { id: 2 }
                     ]
                 }
-            })
-        ]);
+            }));
+        });
 
         createBreezeQuery()
             .enumerate()
@@ -74,6 +74,39 @@ $(function () {
                     { "id": 2 }
                 ]);
                 assert.ok($.isEmptyObject(extra));
+            }).always(done);
+    });
+
+    QUnit.test("enumerate (with requireTotalCount)", function (assert) {
+        var done = assert.async();
+
+        this.server.respondWith(function (request) {
+            assert.ok(/\$inlinecount=allpages$/.test(decodeURIComponent(request.url)));
+
+            request.respond(HTTP_STATUS_OK, ODATA_V2_RESPONSE_HEADERS, JSON.stringify({
+                d: {
+                    results: [
+                        { id: 1 },
+                        { id: 2 }
+                    ],
+                    __count: 2
+                }
+            }));
+        });
+
+        createBreezeQuery({ queryOptions: { requireTotalCount: true } })
+            .enumerate()
+            .fail(function () {
+                assert.ok(false, "Shouldn't reach this point");
+            })
+            .done(function (results, extra) {
+                assert.deepEqual(results, [
+                    { "id": 1 },
+                    { "id": 2 }
+                ]);
+                assert.deepEqual(extra, {
+                    totalCount: 2
+                });
             }).always(done);
     });
 
@@ -271,5 +304,28 @@ $(function () {
                 ])
                 .enumerate();
         });
+    });
+
+    QUnit.test("count", function (assert) {
+        var done = assert.async();
+
+        this.server.respondWith([
+            HTTP_STATUS_OK,
+            ODATA_V2_RESPONSE_HEADERS,
+            JSON.stringify({
+                d: {
+                    __count: 42
+                }
+            })
+        ]);
+
+        createBreezeQuery()
+            .count()
+            .fail(function () {
+                assert.ok(false, "Shouldn't reach this point");
+            })
+            .done(function (r) {
+                assert.equal(r, 42);
+            }).always(done);
     });
 });
