@@ -91,4 +91,10 @@ $(function () {
             createBreezeQuery.thenBy("b");
         });
     });
+
+    QUnit.test("grouping throws", function (assert) {
+        assert.throws(function () {
+            createBreezeQuery().groupBy();
+        });
+    });
 });
