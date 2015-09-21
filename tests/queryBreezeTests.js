@@ -2,6 +2,7 @@ $(function () {
     var dataNs = DevExpress.data,
         query = dataNs.queryImpl.breeze,
 
+        DataType = breeze.DataType,
         DataService = breeze.DataService,
         EntityQuery = breeze.EntityQuery,
         EntityManager = breeze.EntityManager;
@@ -166,5 +167,109 @@ $(function () {
             .slice(1, 2)
             .enumerate()
             .always(done);
+    });
+
+    QUnit.test("simple filter", function (assert) {
+        var done = assert.async();
+
+        this.server.respondWith(function (request) {
+            assert.ok(/\$filter=name eq 'John'$/.test(decodeURIComponent(request.url)));
+        });
+
+        createBreezeQuery()
+            .filter("name", "John")
+            .enumerate()
+            .always(done);
+    });
+
+    QUnit.test("complex filter", function (assert) {
+        var done = assert.async(),
+            one = {
+                value: 1,
+                dataType: DataType.Int32
+            };
+
+        this.server.respondWith(function (request) {
+            assert.ok(/\$filter=\(\(a ne 1\) or \(\(b eq 1\) and \(c gt 1\)\) or \(c lt 1\) or \(c eq 1\)\) and \(d eq 1\)$/.test(decodeURIComponent(request.url)));
+        });
+
+        createBreezeQuery()
+            .filter([
+                [
+                    ["a", "<>", one],
+                    "or",
+                    [
+                        ["b", one],
+                        ["c", ">", one]
+                    ],
+                    "or",
+                    ["c", "<", one],
+                    "or",
+                    ["c", one]
+                ],
+                "and",
+                ["d", one]
+            ])
+            .enumerate()
+            .always(done);
+    });
+
+    QUnit.test("all filter operations", function (assert) {
+        var done = assert.async();
+
+        this.server.respondWith(function (request) {
+            // TODO: Find another way to test query string params
+            assert.ok(/\$filter=\(a eq 'foo'\) and \(a gt 'foo'\) and \(a lt 'foo'\) and \(a ne 'foo'\) and \(a ge 'foo'\) and \(a le 'foo'\) and \(endswith\(a,'x'\) eq true\) and \(startswith\(a,'x'\) eq true\) and \(substringof\('x',a\) eq true\) and \(not \(substringof\('x',a\) eq true\)\)$/.test(decodeURIComponent(request.url)));
+        });
+
+        createBreezeQuery()
+            .filter([
+                ["a", "=", "foo"],
+                ["a", ">", "foo"],
+                ["a", "<", "foo"],
+                ["a", "<>", "foo"],
+                ["a", ">=", "foo"],
+                ["a", "<=", "foo"],
+                ["a", "endswith", "x"],
+                ["a", "startswith", "x"],
+                ["a", "contains", "x"],
+                ["a", "notcontains", "x"]
+            ])
+            .enumerate()
+            .always(done);
+    });
+
+    QUnit.test("mixin and/or operators are not allowed", function (assert) {
+        assert.throws(function() {
+            createBreezeQuery()
+                .filter([
+                    ["a", "foo"],
+                    "and",
+                    ["a", "<", "bar"],
+                    "or",
+                    ["a", ">", "foobar"]
+                ])
+                .enumerate();
+        });
+        assert.throws(function() {
+            createBreezeQuery()
+                .filter([
+                    ["a", "foo"],
+                    ["a", "<", "bar"],
+                    "or",
+                    ["a", ">", "foobar"]
+                ])
+                .enumerate();
+        });
+        assert.throws(function() {
+            createBreezeQuery()
+                .filter([
+                    ["a", "foo"],
+                    "or",
+                    ["a", "<", "bar"],
+                    ["a", ">", "foobar"]
+                ])
+                .enumerate();
+        });
     });
 });
