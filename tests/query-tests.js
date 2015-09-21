@@ -1,16 +1,11 @@
-function createBreezeQuery(options) {
-    options = options || {};
+function createBreezeQuery(bag) {
+    bag = bag || {};
 
-    var resourceNameOrQuery = options.resourceNameOrQuery || "resourceName";
-    var queryOptions = options.queryOptions || {};
-    var manager = options.manager || new EntityManager({
-        dataService: new DataService({
-            serviceName: "...",
-            hasServerMetadata: false
-        })
-    });
+    var options = bag.queryOptions || {};
+    var manager = bag.manager || createEntityManager();
+    var resourceNameOrQuery = bag.resourceNameOrQuery || DEFAULT_RESOURCE_NAME;
 
-    return breezeQuery(manager, resourceNameOrQuery, queryOptions);
+    return breezeQuery(manager, resourceNameOrQuery, options);
 }
 
 QUnit.module("[Query-tests]", {
@@ -46,9 +41,7 @@ QUnit.test("enumerate", function (assert) {
 
     createBreezeQuery()
         .enumerate()
-        .fail(function () {
-            assert.ok(false, "Shouldn't reach this point");
-        })
+        .fail(createNoPasaran(assert))
         .done(function (results, extra) {
             assert.deepEqual(results, [
                 { "id": 1 },
@@ -77,9 +70,7 @@ QUnit.test("enumerate (with requireTotalCount)", function (assert) {
 
     createBreezeQuery({ queryOptions: { requireTotalCount: true } })
         .enumerate()
-        .fail(function () {
-            assert.ok(false, "Shouldn't reach this point");
-        })
+        .fail(createNoPasaran(assert))
         .done(function (results, extra) {
             assert.deepEqual(results, [
                 { "id": 1 },
@@ -302,9 +293,7 @@ QUnit.test("count", function (assert) {
 
     createBreezeQuery()
         .count()
-        .fail(function () {
-            assert.ok(false, "Shouldn't reach this point");
-        })
+        .fail(createNoPasaran(assert))
         .done(function (r) {
             assert.equal(r, 42);
         }).always(done);
@@ -328,9 +317,7 @@ QUnit.test("error handling for count", function (assert) {
         .fail(function (error) {
             assert.ok(error instanceof Error);
         })
-        .done(function () {
-            assert.ok(false, "Shouldn't reach this point");
-        })
+        .done(createNoPasaran(assert))
         .always(done);
 });
 
@@ -352,8 +339,6 @@ QUnit.test("error handling for enumerate", function (assert) {
         .fail(function (error) {
             assert.ok(error instanceof Error);
         })
-        .done(function () {
-            assert.ok(false, "Shouldn't reach this point");
-        })
+        .done(createNoPasaran(assert))
         .always(done);
 });
