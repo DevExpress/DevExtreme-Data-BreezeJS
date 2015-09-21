@@ -75,7 +75,7 @@ $(function () {
         });
 
         server.respondWith(function (request) {
-            assert.ok(/a desc,b,c\/d/.test(decodeURIComponent(request.url)));
+            assert.ok(/\$orderby=a desc,b,c\/d$/.test(decodeURIComponent(request.url)));
         });
 
         createBreezeQuery()
@@ -96,5 +96,68 @@ $(function () {
         assert.throws(function () {
             createBreezeQuery().groupBy();
         });
+    });
+
+    QUnit.module("select & expand", {
+        beforeEach: function () {
+            this.server = sinon.fakeServer.create({
+                respondImmediately: true
+            });
+        },
+        afterEach: function () {
+            this.server.restore();
+        }
+    });
+
+    QUnit.test("select", function (assert) {
+        var done = assert.async();
+
+        this.server.respondWith(function (request) {
+            assert.ok(/\$select=a$/.test(decodeURIComponent(request.url)));
+        });
+
+        createBreezeQuery()
+            .select("a")
+            .enumerate()
+            .always(done);
+    });
+
+    QUnit.test("expand", function (assert) {
+        var done = assert.async();
+
+        this.server.respondWith(function (request) {
+            assert.ok(/\$expand=a$/.test(decodeURIComponent(request.url)));
+        });
+
+        createBreezeQuery()
+            .expand("a")
+            .enumerate()
+            .always(done);
+    });
+
+    QUnit.test("select and implicit expand", function (assert) {
+        var done = assert.async();
+
+        this.server.respondWith(function (request) {
+            assert.ok(/\$expand=a&\$select=a\/b,a\/c,b$/.test(decodeURIComponent(request.url)));
+        });
+
+        createBreezeQuery()
+            .select("a.b", "a.c", "b")
+            .enumerate()
+            .always(done);
+    });
+
+    QUnit.test("implicit expand doesn't overwrite user expand", function (assert) {
+        var done = assert.async();
+
+        this.server.respondWith(function (request) {
+            assert.ok(/\$expand=b,a&\$select=b\/c$/.test(decodeURIComponent(request.url)));
+        });
+
+        createBreezeQuery({ resourceNameOrQuery: new EntityQuery("resourceName").expand("a") })
+            .select("b.c")
+            .enumerate()
+            .always(done);
     });
 });
