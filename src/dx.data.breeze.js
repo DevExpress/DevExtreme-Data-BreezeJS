@@ -185,10 +185,10 @@
             entityManager
                 .executeQuery(entityQuery)
                 .then(function (obj) {
-                    var extra;
+                    var extra = {};
 
                     if (utilsNs.isNumber(obj.inlineCount))
-                        extra = { totalCount: obj.inlineCount };
+                        extra.totalCount = obj.inlineCount;
 
                     d.resolve(obj.results, extra);
                 })
