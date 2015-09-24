@@ -406,3 +406,40 @@ QUnit.test("remove", function (assert) {
         })
         .always(done);
 });
+
+QUnit.test("remove (autoCommit=true)", function (assert) {
+    var done = assert.async();
+
+    this.server.respondWith(function (request) {
+        request.respond(202, { "Content-Type": "multipart/mixed; boundary=batchresponse_687e5097-9ea0-4c2d-a82b-1bc9f6f39c1e", "DataServiceVersion":"3.0" }, "\
+--batchresponse_687e5097-9ea0-4c2d-a82b-1bc9f6f39c1e\r\n\
+Content-Type: multipart/mixed; boundary=changesetresponse_a0dab49c-f77f-4a53-b170-668f7c471a50\r\n\
+\r\n\
+--changesetresponse_a0dab49c-f77f-4a53-b170-668f7c471a50\r\n\
+Content-Type: application/http\r\n\
+Content-Transfer-Encoding: binary\r\n\
+\r\n\
+HTTP/1.1 204 No Content\r\n\
+Content-ID: 1\r\n\
+\r\n\
+\r\n\
+--changesetresponse_a0dab49c-f77f-4a53-b170-668f7c471a50--\r\n\
+--batchresponse_687e5097-9ea0-4c2d-a82b-1bc9f6f39c1e--");
+    });
+
+    var store = createBreezeStoreWithDefaultEntityType({ autoCommit: true });
+    var manager = store.entityManager();
+
+    manager.createEntity(DEFAULT_ENTITY_NAME, { id: 1, name: "foo" }, EntityState.Unchanged);
+
+    store.remove(1)
+        .fail(function () {
+            assert.ok(false, "Shouldn't reach this point");
+        })
+        .done(function (id) {
+            assert.equal(id, 1);
+
+            assert.ok(!manager.hasChanges());
+        })
+        .always(done);
+});
