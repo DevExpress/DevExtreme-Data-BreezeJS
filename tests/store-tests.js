@@ -5,6 +5,21 @@ function createBreezeStore(options) {
     }, options));
 }
 
+function createBreezeStoreWithDefaultEntityType(storeOptions) {
+    var store = createBreezeStore(storeOptions);
+
+    store.entityManager().metadataStore.addEntityType({
+        dataProperties: {
+            id: { isPartOfKey: true },
+            name: { }
+        },
+        shortName: DEFAULT_ENTITY_NAME,
+        defaultResourceName: DEFAULT_RESOURCE_NAME
+    });
+
+    return store;
+}
+
 QUnit.module("[Store-tests]", {
     beforeEach: function () {
         this.server = sinon.fakeServer.create({
@@ -217,4 +232,75 @@ QUnit.test("key can be obtained from metadata", function (assert) {
     assert.ok($.inArray("id2", complexKey) > -1);
 
     assert.deepEqual(storeForEntityWithComplexKey.keyOf({ id1: "abc", id2: "xyz" }), { id1: "abc", id2: "xyz" });
+});
+
+QUnit.test("update", function (assert) {
+    var done = assert.async();
+
+    var store = createBreezeStoreWithDefaultEntityType();
+    var manager = store.entityManager();
+
+    manager.createEntity(DEFAULT_ENTITY_NAME, { id: 1, name: "foo" }, EntityState.Unchanged);
+
+    store.update(1, { name: "bar" })
+        .fail(createNoPasaran(assert), done)
+        .done(function (key, values) {
+            assert.equal(key, 1);
+
+            assert.ok(manager.hasChanges());
+            assert.equal(manager.getChanges()[0].entityAspect.entityState, EntityState.Modified);
+
+            manager.fetchEntityByKey(DEFAULT_ENTITY_NAME, key, true)
+                .then(function (result) {
+                    assert.equal(result.entity.name, "bar");
+                })
+                .then(null, createNoPasaran(assert))
+                .then(done, done);
+        });
+});
+
+QUnit.test("update (autoCommit=true)", function (assert) {
+    var done = assert.async();
+
+    this.server.respondWith(function (request) {
+        request.respond(202, { "Content-Type": "multipart/mixed; boundary=batchresponse_687e5097-9ea0-4c2d-a82b-1bc9f6f39c1e", "DataServiceVersion":"3.0" }, "\
+--batchresponse_687e5097-9ea0-4c2d-a82b-1bc9f6f39c1e\r\n\
+Content-Type: multipart/mixed; boundary=changesetresponse_a0dab49c-f77f-4a53-b170-668f7c471a50\r\n\
+\r\n\
+--changesetresponse_a0dab49c-f77f-4a53-b170-668f7c471a50\r\n\
+Content-Type: application/http\r\n\
+Content-Transfer-Encoding: binary\r\n\
+\r\n\
+HTTP/1.1 204 No Content\r\n\
+Content-ID: 1\r\n\
+\r\n\
+\r\n\
+--changesetresponse_a0dab49c-f77f-4a53-b170-668f7c471a50--\r\n\
+--batchresponse_687e5097-9ea0-4c2d-a82b-1bc9f6f39c1e--");
+    });
+
+    var store = createBreezeStoreWithDefaultEntityType({ autoCommit: true });
+    var manager = store.entityManager();
+
+    manager.createEntity(DEFAULT_ENTITY_NAME, { id: 1, name: "foo" }, EntityState.Unchanged);
+
+    store.update(1, { name: "bar" })
+        .fail(function () {
+            assert.ok(false, "Shouldn't reach this point");
+        })
+        .fail(done)
+        .done(function (key, value) {
+            assert.equal(key, 1);
+            assert.ok(!manager.hasChanges());
+
+            manager.fetchEntityByKey(DEFAULT_ENTITY_NAME, key, true)
+                .then(function (result) {
+                    assert.equal(result.entity.name, "bar");
+                    assert.equal(result.entity.entityAspect.entityState, EntityState.Unchanged);
+                })
+                .catch(function () {
+                    assert.ok(false, "Shouldn't reach this point");
+                })
+                .then(done, done);
+        });
 });

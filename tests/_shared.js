@@ -4,21 +4,21 @@ var dataNs = DX.data,
 
     DataType = breeze.DataType,
     DataService = breeze.DataService,
+    EntityState = breeze.EntityState,
     EntityQuery = breeze.EntityQuery,
     EntityManager = breeze.EntityManager;
 
 var HTTP_STATUS_OK = 200;
+var HTTP_STATUS_ACCEPTED = 202;
 var HTTP_STATUS_ERROR = 500;
+
 var ODATA_V2_RESPONSE_HEADERS = {
     "DataServiceVersion": 2.0,
     "Content-Type": "application/json;charset=utf-8"
 };
 
-breeze.config.initializeAdapterInstances({
-    dataService: "OData"
-});
-
-var DEFAULT_SERVICE_NAME = "...",
+var DEFAULT_ENTITY_NAME = "Entity",
+    DEFAULT_SERVICE_NAME = "Service",
     DEFAULT_RESOURCE_NAME = "Entities";
 
 function createEntityManager() {
@@ -42,3 +42,5 @@ function toBreezeInt32(value) {
         dataType: DataType.Int32
     };
 }
+
+breeze.config.initializeAdapterInstance('dataService', 'webApiOData', true);
