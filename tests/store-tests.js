@@ -306,3 +306,33 @@ Content-ID: 1\r\n\
                 .then(done, done);
         });
 });
+
+QUnit.test("insert", function (assert) {
+    var done = assert.async();
+
+    var store = createBreezeStoreWithDefaultEntityType();
+    var manager = store.entityManager();
+
+    store.insert({ id: 1, name: "foo" })
+        .fail(function () {
+            assert.ok(false, "Shouldn't reach this point");
+        })
+        .done(function (values, id) {
+            var changes;
+
+            assert.equal(id, 1);
+
+            // TODO: Since Breeze adds $entityRef prop to values object, so the assertion bellow will fail.
+            // assert.deepEqual(values, { id: 1, name: "foo" });
+            assert.equal(values.id, 1);
+            assert.equal(values.name, "foo");
+
+            assert.ok(manager.hasChanges());
+
+            changes = manager.getChanges();
+            assert.equal(changes.length, 1);
+            assert.equal(changes[0].id, id);
+            assert.equal(changes[0].entityAspect.entityState, EntityState.Added);
+        })
+        .always(done);
+});
