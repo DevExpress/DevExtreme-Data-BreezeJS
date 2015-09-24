@@ -31,7 +31,7 @@
             ],
             "breeze-client": [
                 "bower_components/breeze-client/build/breeze.min.js",
-                "bower_components/breeze-client/build/adapters/breeze.dataService.odata.js"
+                "bower_components/breeze-client/build/breeze.debug.js"
             ]
         }
     }

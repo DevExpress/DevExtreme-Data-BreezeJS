@@ -14,7 +14,6 @@ module.exports = function (config) {
             "lib/datajs/datajs-*.min.js",
 
             "lib/breeze-client/breeze.min.js",
-            "lib/breeze-client/breeze.dataService.odata.js",
             "lib/sinon/index.js",
 
             "src/dx.data.breeze.js",
