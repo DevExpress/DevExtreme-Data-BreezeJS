@@ -7,7 +7,7 @@
     "gulp": "^3.9.0",
     "gulp-concat": "^2.6.0",
     "gulp-qunit": "^1.2.1",
-    "gulp-serve": "1.0.0",
+    "gulp-serve": "^1.2.0",
     "karma": "^0.13.9",
     "karma-coverage": "^0.5.2",
     "karma-junit-reporter": "^0.3.4",

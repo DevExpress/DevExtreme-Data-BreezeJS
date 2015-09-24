@@ -2,23 +2,27 @@
 
 var gulp = require("gulp"),
     karma = require("karma"),
+    serve = require("gulp-serve"),
     qunit = require("gulp-qunit"),
     concat = require("gulp-concat");
 
 var pathToTestsDir = __dirname + "/tests/";
+var testScripts = [
+    "_header.js",
+    "_shared.js",
+    "query-tests.js",
+    "store-tests.js",
+    "_footer.js"
+].map(function (name) { return pathToTestsDir + name; });
 
 gulp.task("compile-tests", function () {
-    var scripts = [
-        "_header.js",
-        "_shared.js",
-        "query-tests.js",
-        "store-tests.js",
-        "_footer.js"
-    ];
-
-    gulp.src(scripts.map(function (name) { return pathToTestsDir + name; }))
+    gulp.src(testScripts)
         .pipe(concat("all-tests.js"))
         .pipe(gulp.dest(pathToTestsDir));
+});
+
+gulp.task("watch-for-tests", function () {
+    gulp.watch([testScripts], ["compile-tests"]);
 });
 
 gulp.task("run-all", ["compile-tests"], function (done) {
@@ -27,3 +31,10 @@ gulp.task("run-all", ["compile-tests"], function (done) {
         configFile: __dirname + "/karma.conf.js"
     });
 });
+
+gulp.task("server", serve({
+    root: ["wwwroot"],
+    port: 30001
+}));
+
+gulp.task("default", ["compile-tests", "server", "watch-for-tests"]);
