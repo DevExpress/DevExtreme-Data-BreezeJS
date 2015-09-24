@@ -1,1 +1,1 @@
-(function (QUnit, $, DX) {
+(function (QUnit, $, DX, undefined) {
