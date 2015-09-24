@@ -384,3 +384,25 @@ DataServiceVersion: 3.0\r\n\
         })
         .always(done);
 });
+
+QUnit.test("remove", function (assert) {
+    var done = assert.async();
+
+    var store = createBreezeStoreWithDefaultEntityType();
+    var manager = store.entityManager();
+
+    manager.createEntity(DEFAULT_ENTITY_NAME, { id: 1, name: "foo" }, EntityState.Unchanged);
+
+    store.remove(1)
+        .fail(function () {
+            assert.ok(false, "Shouldn't reach this point");
+        })
+        .done(function (id) {
+            assert.equal(id, 1);
+
+            assert.ok(manager.hasChanges());
+            assert.equal(manager.getChanges()[0].id, 1);
+            assert.equal(manager.getChanges()[0].entityAspect.entityState, EntityState.Deleted);
+        })
+        .always(done);
+});
