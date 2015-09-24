@@ -289,9 +289,11 @@ Content-ID: 1\r\n\
             assert.ok(false, "Shouldn't reach this point");
         })
         .fail(done)
-        .done(function (key, value) {
-            assert.equal(key, 1);
+        .done(function (key, values) {
             assert.ok(!manager.hasChanges());
+
+            assert.equal(key, 1);
+            assert.deepEqual(values, { name: "bar" });
 
             manager.fetchEntityByKey(DEFAULT_ENTITY_NAME, key, true)
                 .then(function (result) {
