@@ -331,8 +331,56 @@ QUnit.test("insert", function (assert) {
 
             changes = manager.getChanges();
             assert.equal(changes.length, 1);
-            assert.equal(changes[0].id, id);
+            assert.equal(changes[0].id, 1);
+            assert.equal(changes[0].name, "foo");
             assert.equal(changes[0].entityAspect.entityState, EntityState.Added);
+        })
+        .always(done);
+});
+
+QUnit.test("insert (autoCommit=true)", function (assert) {
+    var done = assert.async();
+
+    this.server.respondWith(function (request) {
+        request.respond(202, { "Content-Type": "multipart/mixed; boundary=batchresponse_687e5097-9ea0-4c2d-a82b-1bc9f6f39c1e", "DataServiceVersion":"3.0" }, "\
+--batchresponse_687e5097-9ea0-4c2d-a82b-1bc9f6f39c1e\r\n\
+Content-Type: multipart/mixed; boundary=changesetresponse_a0dab49c-f77f-4a53-b170-668f7c471a50\r\n\
+\r\n\
+--changesetresponse_a0dab49c-f77f-4a53-b170-668f7c471a50\r\n\
+Content-Type: application/http\r\n\
+Content-Transfer-Encoding: binary\r\n\
+\r\n\
+HTTP/1.1 201 Created\r\n\
+Location: Service/Entity(1)\r\n\
+Content-ID: 1\r\n\
+Content-Type: application/json; odata=fullmetadata\r\n\
+DataServiceVersion: 3.0\r\n\
+\r\n\
+{\r\n\
+\"odata.metadata\":\"Service/$metadata#Entity/@Element\",\"odata.type\":\"Entity\",\"odata.id\":\"Service/Entity(1)\",\"id\":1,\"name\":\"foo\"\r\n\
+}\r\n\
+\r\n\
+--changesetresponse_a0dab49c-f77f-4a53-b170-668f7c471a50--\r\n\
+--batchresponse_687e5097-9ea0-4c2d-a82b-1bc9f6f39c1e--");
+    });
+
+    var store = createBreezeStoreWithDefaultEntityType({ autoCommit: true });
+    var manager = store.entityManager();
+
+    store.insert({ id: 1, name: "foo" })
+        .fail(function () {
+            assert.ok(false, "Shouldn't reach this point");
+        })
+        .done(function (values, id) {
+
+            assert.equal(id, 1);
+
+            // TODO: Since Breeze adds $entityRef prop to values object, so the assertion bellow will fail.
+            // assert.deepEqual(values, { id: 1, name: "foo" });
+            assert.equal(values.id, 1);
+            assert.equal(values.name, "foo");
+
+            assert.ok(!manager.hasChanges());
         })
         .always(done);
 });
