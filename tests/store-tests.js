@@ -443,3 +443,197 @@ Content-ID: 1\r\n\
         })
         .always(done);
 });
+
+QUnit.test("error handling for load", function (assert) {
+    var done = assert.async();
+
+    this.server.respondWith([HTTP_STATUS_ERROR, ODATA_V2_RESPONSE_HEADERS, JSON.stringify({
+        error: {
+            code: "500",
+            message: "Simulated error"
+        }
+    })]);
+
+    var log = [];
+    var store = createBreezeStore({
+        errorHandler: function () { log.push("optional"); }
+    });
+
+    dataNs.errorHandler = function () {
+        log.push("global");
+    };
+
+    store.load()
+        .done(function () {
+            assert.ok(false, "Shouldn't reach this point");
+        })
+        .fail(function () {
+            log.push("direct");
+        })
+        .always(function () {
+            assert.deepEqual(log, ["optional", "global", "direct"]);
+        })
+        .always(function () {
+            dataNs.errorHandler = null;
+        })
+        .always(done);
+});
+
+QUnit.test("error handling for byKey", function (assert) {
+    var done = assert.async();
+
+    this.server.respondWith([HTTP_STATUS_ERROR, ODATA_V2_RESPONSE_HEADERS, "Simulated error"]);
+
+    var log = [];
+    var store = createBreezeStore({
+        key: "Id",
+        errorHandler: function () {
+            log.push("optional");
+        }
+    });
+
+    dataNs.errorHandler = function () {
+        log.push("global");
+    };
+
+    store.byKey(1)
+        .done(function () {
+            assert.ok(false, "Shouldn't reach this point");
+        })
+        .fail(function () {
+            log.push("direct");
+        })
+        .always(function () {
+            assert.deepEqual(log, ["optional", "global", "direct"]);
+        })
+        .always(function () {
+            dataNs.errorHandler = null;
+        })
+        .always(done);
+});
+
+QUnit.test("error handling for update", function (assert) {
+    var done = assert.async();
+
+    this.server.respondWith([HTTP_STATUS_ERROR, ODATA_V2_RESPONSE_HEADERS, JSON.stringify({
+        error: {
+            code: "500",
+            message: "Simulated error"
+        }
+    })]);
+
+    var log = [];
+    var store = createBreezeStoreWithDefaultEntityType({
+        autoCommit: true,
+        errorHandler: function (error) {
+            log.push(["optional", error.message]);
+        }
+    });
+
+    dataNs.errorHandler = function (error) {
+        log.push(["global", error.message]);
+    };
+
+    store.update(0, { name: "bar" })
+        .done(function () {
+            assert.ok(false, "Shouldn't reach this point");
+        })
+        .fail(function (error) {
+            log.push(["direct", error.message]);
+        })
+        .always(function () {
+            assert.deepEqual(log, [
+                ["optional", "Simulated error; "],
+                ["global", "Simulated error; "],
+                ["direct", "Simulated error; "]
+            ]);
+        })
+        .always(function () {
+            dataNs.errorHandler = null;
+        })
+        .always(done);
+});
+
+QUnit.test("error handling for insert", function (assert) {
+    var done = assert.async();
+
+    this.server.respondWith([HTTP_STATUS_ERROR, ODATA_V2_RESPONSE_HEADERS, JSON.stringify({
+        error: {
+            code: "500",
+            message: "Simulated error"
+        }
+    })]);
+
+    var log = [];
+    var store = createBreezeStoreWithDefaultEntityType({
+        autoCommit: true,
+        errorHandler: function (error) {
+            log.push(["optional", error.message]);
+        }
+    });
+
+    dataNs.errorHandler = function (error) {
+        log.push(["global", error.message]);
+    };
+
+    store.insert({ id: 1, name: "foo" })
+        .done(function () {
+            assert.ok(false, "Shouldn't reach this point");
+        })
+        .fail(function (error) {
+            log.push(["direct", error.message]);
+        })
+        .always(function () {
+            assert.deepEqual(log, [
+                ["optional", "Simulated error; "],
+                ["global", "Simulated error; "],
+                ["direct", "Simulated error; "]
+            ]);
+        })
+        .always(function () {
+            dataNs.errorHandler = null;
+        })
+        .always(done);
+});
+
+QUnit.test("error handling for remove", function (assert) {
+    var done = assert.async();
+
+    this.server.respondWith([HTTP_STATUS_ERROR, ODATA_V2_RESPONSE_HEADERS, JSON.stringify({
+        error: {
+            code: "500",
+            message: "Simulated error"
+        }
+    })]);
+
+    var log = [];
+    var store = createBreezeStoreWithDefaultEntityType({
+        autoCommit: true,
+        errorHandler: function (error) {
+            log.push(["optional", error.message]);
+        }
+    });
+
+    dataNs.errorHandler = function (error) {
+        log.push(["global", error.message]);
+    };
+
+    store.remove(1)
+        .done(function () {
+            assert.ok(false, "Shouldn't reach this point");
+        })
+        .fail(function (error) {
+            log.push(["direct", error.message]);
+        })
+        .always(function () {
+            assert.deepEqual(log, [
+                ["optional", "Simulated error; "],
+                ["global", "Simulated error; "],
+                ["direct", "Simulated error; "]
+            ]);
+        })
+        .always(function () {
+            dataNs.errorHandler = null;
+        })
+        .always(done);
+});
