@@ -99,7 +99,7 @@ QUnit.test("sortBy / thenBy", function (assert) {
 
 QUnit.test("thenBy cannot be called before sortBy", function (assert) {
     assert.throws(function () {
-        createBreezeQuery.thenBy("b");
+        createBreezeQuery().thenBy("b");
     });
 });
 

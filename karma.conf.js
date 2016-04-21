@@ -11,7 +11,7 @@ module.exports = function (config) {
             "lib/jquery/jquery.js",
             "lib/globalize/globalize.js",
             "lib/devextreme/dx.all.js",
-            "lib/datajs/datajs-*.min.js",
+            "lib/datajs/datajs.min.js",
 
             "lib/breeze-client/breeze.min.js",
             "lib/sinon/index.js",

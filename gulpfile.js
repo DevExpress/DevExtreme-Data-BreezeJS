@@ -29,7 +29,7 @@ gulp.task("run-all", ["compile-tests"], function (done) {
     new karma.Server({
         signleRun: true,
         configFile: __dirname + "/karma.conf.js"
-    });
+    }, done).start();
 });
 
 gulp.task("server", serve({
