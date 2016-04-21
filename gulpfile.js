@@ -16,7 +16,7 @@ var testScripts = [
 ].map(function (name) { return pathToTestsDir + name; });
 
 gulp.task("compile-tests", function () {
-    gulp.src(testScripts)
+    return gulp.src(testScripts)
         .pipe(concat("all-tests.js"))
         .pipe(gulp.dest(pathToTestsDir));
 });
