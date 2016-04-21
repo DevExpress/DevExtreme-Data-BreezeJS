@@ -2,7 +2,7 @@
     var breeze = window.breeze;
 
     var dataNs = DX.data,
-        utilsNs = DX.utils;
+        __isNumber = DX.require("/utils/utils.common").isNumber;
         
     var breezeQuery = function(entityManager, resourceNameOrQuery, queryOptions, tasks) {
         if(!("breeze" in window))
@@ -230,7 +230,7 @@
                 .then(function(obj) {
                     var extra = {};
 
-                    if (utilsNs.isNumber(obj.inlineCount))
+                    if (__isNumber(obj.inlineCount))
                         extra.totalCount = obj.inlineCount;
 
                     d.resolve(obj.results, extra);
