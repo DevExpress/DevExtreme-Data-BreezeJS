@@ -95,10 +95,28 @@
                     : Predicate[groupOperator].apply(null, groupOperands);
             }
 
+            var compileUnary = function(criteria) {
+                var op = criteria[0],
+                    crit = compileCore(criteria[1]);
+                        
+                if (op === "!") {
+                    return Predicate.not(crit);
+                }
+
+                throw errors.Error("E4003", op);
+            };
+
+            var isUnary = function(criteria) {
+                return criteria[0] === "!" && $.isArray(criteria[1]);
+            };
+
             var compileCore = function(criteria) {
-                if($.isArray(criteria[0]))
+                if ($.isArray(criteria[0]))
                     return compileGroup(criteria); 
-                
+
+                if (isUnary(criteria))
+                   return compileUnary(criteria);
+
                 return compileBinary(criteria);
             };
 

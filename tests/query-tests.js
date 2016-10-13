@@ -241,6 +241,22 @@ QUnit.test("all filter operations", function (assert) {
         .always(done);
 });
 
+QUnit.test("NOT operation", function (assert) {
+    var done = assert.async(),
+        one = toBreezeInt32(1);
+
+    this.server.respondWith(function (request) {
+        assert.ok(/\$filter=not \(a ne 1\)$/.test(decodeURIComponent(request.url)));
+    });
+
+    createBreezeQuery()
+        .filter([
+                "!",["a", "<>", one]
+        ])
+        .enumerate()
+        .always(done);
+});
+
 QUnit.test("mixin and/or operators are not allowed", function (assert) {
     assert.throws(function () {
         createBreezeQuery()
