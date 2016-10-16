@@ -1,0 +1,1 @@
+})(QUnit, jQuery, DevExpress);
