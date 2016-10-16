@@ -1,21 +1,9 @@
-(function(root, factory) {
-    if(typeof define === 'function' && define.amd) {
-        define(function(require, exports, module) {
-            module.exports = factory(
-                require("jquery"),
-                require("core"),
-                require("data"),
-                require("errors"),
-                require("utils"));
-        });
-    } else {
-        factory($, DevExpress, DevExpress.data, DevExpress.errors, DevExpress.utils);
-    }
-})(this, function($, DX, data, errors, utils) {
-    var breeze = window.breeze,
-        commonUtils = utils.common,
-        __isNumber = utils.common.isNumber;
+(function ($, DX, undefined) {
+    var breeze = window.breeze;
 
+    var dataNs = DX.data,
+        __isNumber = DX.require("/utils/utils.common").isNumber;
+        
     var breezeQuery = function(entityManager, resourceNameOrQuery, queryOptions, tasks) {
         if(!("breeze" in window))
             throw Error("breezejs library is required");
@@ -25,7 +13,7 @@
             if (customHandler)
                 customHandler(error);
 
-            data._errorHandler(error);
+            dataNs._errorHandler(error);
         };
 
         var derivedBreezeQuery = function(action, params) {
@@ -33,7 +21,7 @@
                 { action: action, params: params }
             ]));
         };
-
+        
         var entityQuery = function(tasks) {
             var entityQuery = resourceNameOrQuery instanceof breeze.EntityQuery
                 ? resourceNameOrQuery
@@ -45,7 +33,7 @@
 
             return entityQuery;
         };
-
+        
        var compileCriteria = function(criteria) {
             var Predicate = breeze.Predicate;
 
@@ -60,7 +48,7 @@
             };
 
             var compileBinary = function(criteria) {
-                criteria = data.utils.normalizeBinaryCriterion(criteria);
+                criteria = dataNs.utils.normalizeBinaryCriterion(criteria);
 
                 var operator = criteria[1].toLowerCase(),
                     shouldNegate = false,
@@ -124,17 +112,17 @@
 
             var compileCore = function(criteria) {
                 if ($.isArray(criteria[0]))
-                    return compileGroup(criteria);
+                    return compileGroup(criteria); 
 
                 if (isUnary(criteria))
                    return compileUnary(criteria);
-                
+
                 return compileBinary(criteria);
             };
 
             return compileCore(criteria);
         };
-
+        
         var formatSortClause = function(field, desc) {
             return desc ? field + " desc" : field;
         };
@@ -272,7 +260,7 @@
         
         tasks = tasks || [];
         queryOptions = queryOptions || {};
-
+        
         return {
             enumerate: enumerate,
             count: count,
@@ -290,7 +278,7 @@
             aggregate: DX.abstract
         };
     };
-
+    
     var normalizeOptions = function(options) {
         var entityManager,
             resourceName,
@@ -329,9 +317,9 @@
             preferLocal: options.preferLocal || true,
             autoCommit: options.autoCommit || false
         });
-    };
+    }
 
-    var BreezeStore = data.Store.inherit({
+    var BreezeStore = dataNs.Store.inherit({
         ctor: function(options) {
             if (!window.breeze)
                 throw Error("breezejs library is required");
@@ -358,7 +346,7 @@
         createQuery: function(loadOptions) {
             loadOptions = loadOptions || {};
             var userQuery = this._resolveUserQuery(loadOptions);
-            var query = data.queryImpl.breeze(this._entityManager, userQuery || this._resourceName, {
+            var query = dataNs.queryImpl.breeze(this._entityManager, userQuery || this._resourceName, {
                 errorHandler: this._errorHandler,
                 requireTotalCount: loadOptions.requireTotalCount
             });
@@ -501,6 +489,7 @@
         }
     });
 
-    data.BreezeStore = BreezeStore;
-    data.queryImpl.breeze = breezeQuery;
-});
+    dataNs.BreezeStore = BreezeStore;
+    dataNs.queryImpl.breeze = breezeQuery;
+    
+})(jQuery, DevExpress);
