@@ -9,7 +9,6 @@ module.exports = function (config) {
 
             "lib/q/q.js",
             "lib/jquery/jquery.js",
-            "lib/globalize/globalize.js",
             "lib/devextreme/dx.all.js",
             "lib/datajs/datajs.min.js",
 
@@ -18,7 +17,9 @@ module.exports = function (config) {
 
             "src/dx.data.breeze.js",
 
-            "tests/all-tests.js"
+            "tests/_shared.js",
+            "tests/query-tests.js",
+            "tests/store-tests.js"
         ],
         plugins: [
             "karma-qunit",
