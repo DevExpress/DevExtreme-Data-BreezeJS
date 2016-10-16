@@ -1,3 +1,4 @@
+var DX = DevExpress;
 var dataNs = DX.data,
     breezeQuery = dataNs.queryImpl.breeze,
     BreezeStore = dataNs.BreezeStore,
