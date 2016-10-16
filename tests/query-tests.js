@@ -55,7 +55,7 @@ QUnit.test("enumerate (with requireTotalCount)", function (assert) {
     var done = assert.async();
 
     this.server.respondWith(function (request) {
-        assert.ok(/\$inlinecount=allpages&?$/.test(decodeURIComponent(request.url)));
+        assert.ok(/\$inlinecount=allpages$/.test(decodeURIComponent(request.url)));
 
         request.respond(HTTP_STATUS_OK, ODATA_V2_RESPONSE_HEADERS, JSON.stringify({
             d: {
@@ -86,7 +86,7 @@ QUnit.test("sortBy / thenBy", function (assert) {
     var done = assert.async();
 
     this.server.respondWith(function (request) {
-        assert.ok(/\$orderby=a desc,b,c\/d&?$/.test(decodeURIComponent(request.url)));
+        assert.ok(/\$orderby=a desc,b,c\/d$/.test(decodeURIComponent(request.url)));
     });
 
     createBreezeQuery()
@@ -113,7 +113,7 @@ QUnit.test("select", function (assert) {
     var done = assert.async();
 
     this.server.respondWith(function (request) {
-        assert.ok(/\$select=a&?$/.test(decodeURIComponent(request.url)));
+        assert.ok(/\$select=a$/.test(decodeURIComponent(request.url)));
     });
 
     createBreezeQuery()
@@ -126,7 +126,7 @@ QUnit.test("expand", function (assert) {
     var done = assert.async();
 
     this.server.respondWith(function (request) {
-        assert.ok(/\$expand=a&?$/.test(decodeURIComponent(request.url)));
+        assert.ok(/\$expand=a$/.test(decodeURIComponent(request.url)));
     });
 
     createBreezeQuery()
@@ -139,7 +139,7 @@ QUnit.test("select and implicit expand", function (assert) {
     var done = assert.async();
 
     this.server.respondWith(function (request) {
-        assert.ok(/\$expand=a&\$select=a\/b,a\/c,b&?$/.test(decodeURIComponent(request.url)));
+        assert.ok(/\$expand=a&\$select=a\/b,a\/c,b$/.test(decodeURIComponent(request.url)));
     });
 
     createBreezeQuery()
@@ -152,7 +152,7 @@ QUnit.test("implicit expand doesn't overwrite user expand", function (assert) {
     var done = assert.async();
 
     this.server.respondWith(function (request) {
-        assert.ok(/\$expand=b,a&\$select=b\/c&?$/.test(decodeURIComponent(request.url)));
+        assert.ok(/\$expand=b,a&\$select=b\/c$/.test(decodeURIComponent(request.url)));
     });
 
     createBreezeQuery({ resourceNameOrQuery: new EntityQuery("resourceName").expand("a") })
@@ -165,7 +165,7 @@ QUnit.test("slice", function (assert) {
     var done = assert.async();
 
     this.server.respondWith(function (request) {
-        assert.ok(/\$skip=1&\$top=2&?$/.test(decodeURIComponent(request.url)));
+        assert.ok(/\$skip=1&\$top=2$/.test(decodeURIComponent(request.url)));
     });
 
     createBreezeQuery()
@@ -178,7 +178,7 @@ QUnit.test("simple filter", function (assert) {
     var done = assert.async();
 
     this.server.respondWith(function (request) {
-        assert.ok(/\$filter=name eq 'John'&?$/.test(decodeURIComponent(request.url)));
+        assert.ok(/\$filter=name eq 'John'$/.test(decodeURIComponent(request.url)));
     });
 
     createBreezeQuery()
@@ -192,7 +192,7 @@ QUnit.test("complex filter", function (assert) {
         one = toBreezeInt32(1);
 
     this.server.respondWith(function (request) {
-        assert.ok(/\$filter=\(\(a ne 1\) or \(\(b eq 1\) and \(c gt 1\)\) or \(c lt 1\) or \(c eq 1\)\) and \(d eq 1\)&?$/.test(decodeURIComponent(request.url)));
+        assert.ok(/\$filter=\(\(a ne 1\) or \(\(b eq 1\) and \(c gt 1\)\) or \(c lt 1\) or \(c eq 1\)\) and \(d eq 1\)$/.test(decodeURIComponent(request.url)));
     });
 
     createBreezeQuery()
@@ -221,7 +221,7 @@ QUnit.test("all filter operations", function (assert) {
 
     this.server.respondWith(function (request) {
         // TODO: Find another way to test query string params
-        assert.ok(/\$filter=\(a eq 'foo'\) and \(a gt 'foo'\) and \(a lt 'foo'\) and \(a ne 'foo'\) and \(a ge 'foo'\) and \(a le 'foo'\) and \(endswith\(a,'x'\) eq true\) and \(startswith\(a,'x'\) eq true\) and \(substringof\('x',a\) eq true\) and \(not \(substringof\('x',a\) eq true\)\)&?$/.test(decodeURIComponent(request.url)));
+        assert.ok(/\$filter=\(a eq 'foo'\) and \(a gt 'foo'\) and \(a lt 'foo'\) and \(a ne 'foo'\) and \(a ge 'foo'\) and \(a le 'foo'\) and \(endswith\(a,'x'\) eq true\) and \(startswith\(a,'x'\) eq true\) and \(substringof\('x',a\) eq true\) and \(not \(substringof\('x',a\) eq true\)\)$/.test(decodeURIComponent(request.url)));
     });
 
     createBreezeQuery()
@@ -246,7 +246,7 @@ QUnit.test("NOT operation", function (assert) {
         one = toBreezeInt32(1);
 
     this.server.respondWith(function (request) {
-        assert.ok(/\$filter=not \(a ne 1\)&?$/.test(decodeURIComponent(request.url)));
+        assert.ok(/\$filter=not \(a ne 1\)$/.test(decodeURIComponent(request.url)));
     });
 
     createBreezeQuery()

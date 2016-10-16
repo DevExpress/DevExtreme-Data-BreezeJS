@@ -129,7 +129,7 @@ QUnit.test("load (with options)", function (assert) {
     var done = assert.async();
 
     this.server.respondWith(function (request) {
-        assert.ok(/\$filter=b eq 'foo'&\$orderby=a desc&\$expand=a,b\/c&?$/.test(decodeURIComponent(request.url)));
+        assert.ok(/\$filter=b eq 'foo'&\$orderby=a desc&\$expand=a,b\/c$/.test(decodeURIComponent(request.url)));
     });
 
     createBreezeStore()
@@ -165,7 +165,7 @@ QUnit.test("load (with requireTotalCount)", function (assert) {
         .always(done);
 });
 
-QUnit.test("byKey (simple key)", function (assert) {
+QUnit.test("byKey (simple key)", 1, function (assert) {
     var done = assert.async();
 
     this.server.respondWith(function (request) {
@@ -174,7 +174,7 @@ QUnit.test("byKey (simple key)", function (assert) {
         // var regExp = new RegExp(DEFAULT_RESOURCE_NAME + "\\/1$");
         // assert.ok(regExp.test(decodeURIComponent(request.url)));
 
-        assert.ok(/\$filter=ID eq 1&?$/.test(decodeURIComponent(request.url)));
+        assert.ok(/\$filter=ID eq 1$/.test(decodeURIComponent(request.url)));
     });
 
     createBreezeStore({ key: "ID" })
@@ -182,11 +182,11 @@ QUnit.test("byKey (simple key)", function (assert) {
         .always(done);
 });
 
-QUnit.test("byKey (complex key)", function (assert) {
+QUnit.test("byKey (complex key)", 1, function (assert) {
     var done = assert.async();
 
     this.server.respondWith(function (request) {
-        assert.ok(/\$filter=\(ID1 eq 1\) and \(ID2 eq 2\)&?$/.test(decodeURIComponent(request.url)));
+        assert.ok(/\$filter=\(ID1 eq 1\) and \(ID2 eq 2\)$/.test(decodeURIComponent(request.url)));
     });
 
     createBreezeStore({ key: ["ID1", "ID2"] })
