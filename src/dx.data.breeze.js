@@ -14,7 +14,7 @@
 })(this, function($, DX, data, errors, utils) {
     var breeze = window.breeze,
         commonUtils = utils.common,
-        __isNumber = utils.common.isNumber;
+        __isNumber = utils.common.isNumeric;
 
     var breezeQuery = function(entityManager, resourceNameOrQuery, queryOptions, tasks) {
         if(!("breeze" in window))
@@ -254,7 +254,7 @@
 
             if (queryOptions.requireTotalCount)
                 q = q.inlineCount(true);
-
+            
             entityManager
                 .executeQuery(q)
                 .then(function(obj) {

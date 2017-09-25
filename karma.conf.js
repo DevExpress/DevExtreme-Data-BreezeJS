@@ -1,6 +1,6 @@
 module.exports = function (config) {
     config.set({
-        basePath: "",
+        basePath: "./",
         frameworks: [
             "qunit"
         ],
@@ -31,10 +31,10 @@ module.exports = function (config) {
             "src/*.js": ["coverage"]
         },
         reporters: [
-            "coverage",
-            "progress",
+            "dots",
             "junit",
-            "dots"
+            "coverage",
+            "progress"
         ],
         junitReporter: {
             outputDir: "shippable/testresults/",
